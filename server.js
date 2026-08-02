@@ -17,30 +17,39 @@ if (!existsSync(uploadsDir)) {
   mkdirSync(uploadsDir, { recursive: true });
 }
 
-// Clean up old uploads on server start
-try {
-  const files = readdirSync(uploadsDir);
-  let deletedCount = 0;
-  for (const file of files) {
-    if (file !== '.gitkeep') {
-      unlinkSync(join(uploadsDir, file));
-      deletedCount++;
+const roomStates = new Map();
+
+function clearAllData() {
+  console.log('Running scheduled cleanup of rooms and uploads...');
+  roomStates.clear();
+  try {
+    const files = readdirSync(uploadsDir);
+    let deletedCount = 0;
+    for (const file of files) {
+      if (file !== '.gitkeep') {
+        unlinkSync(join(uploadsDir, file));
+        deletedCount++;
+      }
     }
+    if (deletedCount > 0) {
+      console.log(`Cleaned up ${deletedCount} leftover file(s) in static/uploads/`);
+    }
+  } catch (err) {
+    console.error('Error cleaning up uploads directory:', err);
   }
-  if (deletedCount > 0) {
-    console.log(`Cleaned up ${deletedCount} leftover file(s) in static/uploads/`);
-  }
-} catch (err) {
-  console.error('Error cleaning up uploads directory:', err);
 }
+
+// Run immediately on start
+clearAllData();
+
+// Clear all data once a week (7 days * 24 hrs * 60 mins * 60 secs * 1000 ms)
+setInterval(clearAllData, 7 * 24 * 60 * 60 * 1000);
 
 const io = new Server(server, {
   cors: {
     origin: '*',
   }
 });
-
-const roomStates = new Map();
 
 // Serve the uploads folder directly since files uploaded at runtime 
 // aren't included in SvelteKit's pre-built client assets.

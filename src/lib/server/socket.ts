@@ -8,23 +8,34 @@ import { join } from 'path';
 const roomStates = new Map<string, any[]>();
 
 export function setupSocket(server: HTTPServer) {
-  // Clean up old uploads on server start
-  try {
-    const uploadsDir = join(process.cwd(), 'static', 'uploads');
-    const files = readdirSync(uploadsDir);
-    let deletedCount = 0;
-    for (const file of files) {
-      if (file !== '.gitkeep') {
-        unlinkSync(join(uploadsDir, file));
-        deletedCount++;
+  function clearAllData() {
+    console.log('Running scheduled cleanup of rooms and uploads...');
+    roomStates.clear();
+    try {
+      const uploadsDir = join(process.cwd(), 'static', 'uploads');
+      if (!readdirSync(process.cwd()).includes('static')) return; // Just in case static doesn't exist
+      
+      const files = readdirSync(uploadsDir);
+      let deletedCount = 0;
+      for (const file of files) {
+        if (file !== '.gitkeep') {
+          unlinkSync(join(uploadsDir, file));
+          deletedCount++;
+        }
       }
+      if (deletedCount > 0) {
+        console.log(`Cleaned up ${deletedCount} leftover file(s) in static/uploads/`);
+      }
+    } catch (err) {
+      console.error('Error cleaning up uploads directory:', err);
     }
-    if (deletedCount > 0) {
-      console.log(`Cleaned up ${deletedCount} leftover file(s) in static/uploads/`);
-    }
-  } catch (err) {
-    console.error('Error cleaning up uploads directory:', err);
   }
+
+  // Run immediately on start
+  clearAllData();
+
+  // Clear all data once a week
+  setInterval(clearAllData, 7 * 24 * 60 * 60 * 1000);
 
   const io = new Server(server, {
     cors: {

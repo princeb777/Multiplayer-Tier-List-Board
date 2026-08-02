@@ -24,6 +24,7 @@ A highly responsive, real-time collaborative tier list maker built with **Svelte
   - Right-click images on the board to quickly toss them back into the pool.
   - Delete unwanted images by hovering over them in the pool.
   - Reset the entire board with one click.
+- **Automatic Cleanup**: To prevent servers from running out of storage, all rooms and uploaded images are automatically wiped once every 7 days (and on server restarts).
 
 ## 🛠️ Tech Stack
 
