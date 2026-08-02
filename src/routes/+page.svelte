@@ -1,9 +1,11 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
 
+  let selectedTemplate = 'standard';
+
   function createRoom() {
     const roomId = crypto.randomUUID().split('-')[0];
-    goto(`/${roomId}`);
+    goto(`/${roomId}?template=${selectedTemplate}`);
   }
 </script>
 
@@ -14,6 +16,15 @@
 <div class="landing-container">
   <h1>Multiplayer Tier List Board</h1>
   <p>Create a room, share the link, and collaboratively build a tier list in real-time!</p>
+  
+  <div class="settings">
+    <label for="template">Tier Template:</label>
+    <select id="template" bind:value={selectedTemplate}>
+      <option value="standard">Standard (S to F)</option>
+      <option value="short">Short (S to D)</option>
+    </select>
+  </div>
+
   <button class="create-btn" onclick={createRoom}>Create New Room</button>
 </div>
 
@@ -41,6 +52,32 @@
     font-size: 1.25rem;
     margin-bottom: 32px;
     color: #94a3b8;
+  }
+
+  .settings {
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  label {
+    font-size: 1.1rem;
+    color: #cbd5e1;
+  }
+
+  select {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #475569;
+    background-color: #1e293b;
+    color: white;
+    font-size: 1rem;
+    outline: none;
+  }
+
+  select:focus {
+    border-color: var(--accent-color);
   }
 
   .create-btn {

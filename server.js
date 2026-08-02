@@ -61,7 +61,7 @@ io.on('connection', (socket) => {
   socket.on('join-room', (roomId) => {
     socket.join(roomId);
     console.log(`Socket ${socket.id} joined room ${roomId}`);
-    const state = roomStates.get(roomId) || [];
+    const state = roomStates.get(roomId) || null;
     socket.emit('sync-state', state);
   });
 

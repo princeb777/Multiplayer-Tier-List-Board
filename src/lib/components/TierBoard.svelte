@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { TIERS } from '$lib/store.svelte';
+  import { boardStore } from '$lib/store.svelte';
   import TierRow from './TierRow.svelte';
 </script>
 
 <div class="tier-board">
-  {#each TIERS as tier (tier.id)}
+  {#each boardStore.tiers as tier (tier.id)}
     <TierRow {tier} />
   {/each}
 </div>

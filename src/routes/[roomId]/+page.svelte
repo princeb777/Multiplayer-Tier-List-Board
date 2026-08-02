@@ -5,7 +5,8 @@
   import { boardStore } from '$lib/store.svelte';
 
   $effect(() => {
-    boardStore.setRoomId($page.params.roomId);
+    const template = $page.url.searchParams.get('template') || 'standard';
+    boardStore.setRoomId($page.params.roomId, template);
   });
 </script>
 

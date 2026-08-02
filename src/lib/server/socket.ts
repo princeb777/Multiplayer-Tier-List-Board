@@ -51,7 +51,7 @@ export function setupSocket(server: HTTPServer) {
       console.log(`Socket ${socket.id} joined room ${roomId}`);
       
       // Send the current room state to the newly joined client
-      const state = roomStates.get(roomId) || [];
+      const state = roomStates.get(roomId) || null;
       socket.emit('sync-state', state);
     });
 

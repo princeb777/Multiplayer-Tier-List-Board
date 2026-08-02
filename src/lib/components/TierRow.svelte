@@ -66,7 +66,13 @@
 
 <div class="tier-row-container">
   <div class="tier-label" style="background-color: {tier.color}">
-    {tier.label}
+    <input 
+      type="text" 
+      class="tier-input"
+      value={tier.label} 
+      oninput={(e) => boardStore.updateTierLabel(tier.id, e.currentTarget.value)}
+      aria-label="Edit tier name"
+    />
   </div>
   
   <div 
@@ -107,12 +113,22 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 2rem;
-    font-weight: 700;
-    color: #000; /* Contrast text */
-    text-shadow: 0px 1px 2px rgba(255,255,255,0.4);
     flex-shrink: 0;
     border-right: 1px solid var(--border-color);
+  }
+
+  .tier-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    text-align: center;
+    font-size: 1.25rem; /* Normal text size instead of huge */
+    font-weight: 500; /* Normal weight instead of bold */
+    color: #000; /* Contrast text */
+    text-shadow: 0px 1px 2px rgba(255,255,255,0.4);
+    font-family: inherit;
+    padding: 0 8px;
   }
 
   .tier-content {

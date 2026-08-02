@@ -1,7 +1,7 @@
 import { SvelteMap } from 'svelte/reactivity';
 import { io, Socket } from 'socket.io-client';
 
-export type TierId = 'S' | 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'pool';
+export type TierId = string; // Tiers are dynamic now
 
 export interface Tier {
   id: TierId;
@@ -16,7 +16,7 @@ export interface ImageItem {
   orderIndex: number;
 }
 
-export const TIERS: Tier[] = [
+export const TEMPLATE_S_F: Tier[] = [
   { id: 'S', label: 'S', color: 'var(--tier-s-color)' },
   { id: 'A', label: 'A', color: 'var(--tier-a-color)' },
   { id: 'B', label: 'B', color: 'var(--tier-b-color)' },
@@ -26,15 +26,29 @@ export const TIERS: Tier[] = [
   { id: 'F', label: 'F', color: 'var(--tier-f-color)' },
 ];
 
+export const TEMPLATE_S_D: Tier[] = [
+  { id: 'S', label: 'S', color: 'var(--tier-s-color)' },
+  { id: 'A', label: 'A', color: 'var(--tier-a-color)' },
+  { id: 'B', label: 'B', color: 'var(--tier-b-color)' },
+  { id: 'C', label: 'C', color: 'var(--tier-c-color)' },
+  { id: 'D', label: 'D', color: 'var(--tier-d-color)' },
+];
+
+export interface RoomState {
+  items: ImageItem[];
+  tiers: Tier[];
+}
+
 class BoardStore {
   items = new SvelteMap<string, ImageItem>();
+  tiers = $state<Tier[]>([]);
   roomId: string | null = null;
   socket: Socket | null = null;
   
   // Track if a local update is happening so we don't infinitely broadcast
   isLocalUpdate = false;
 
-  setRoomId(roomId: string) {
+  setRoomId(roomId: string, initialTemplate?: string) {
     if (this.roomId === roomId) return;
     this.roomId = roomId;
     
@@ -49,21 +63,42 @@ class BoardStore {
       this.socket?.emit('join-room', this.roomId);
     });
 
-    this.socket.on('sync-state', (newState: ImageItem[]) => {
-      // Server broadcasted new state, update locally without re-broadcasting
+    this.socket.on('sync-state', (newState: RoomState | null) => {
+      // Server broadcasted new state
       this.isLocalUpdate = true;
-      this.items.clear();
-      newState.forEach(item => {
-        this.items.set(item.id, item);
-      });
-      this.isLocalUpdate = false;
+      
+      if (!newState) {
+        // New room, initialize with requested template
+        this.tiers = initialTemplate === 'short' ? [...TEMPLATE_S_D] : [...TEMPLATE_S_F];
+        this.items.clear();
+        this.isLocalUpdate = false;
+        this.broadcastState(); // Broadcast initial state immediately
+      } else {
+        this.tiers = newState.tiers || [];
+        this.items.clear();
+        (newState.items || []).forEach(item => {
+          this.items.set(item.id, item);
+        });
+        this.isLocalUpdate = false;
+      }
     });
   }
 
   private broadcastState() {
     if (!this.roomId || !this.socket || this.isLocalUpdate) return;
-    const currentState = Array.from(this.items.values());
+    const currentState: RoomState = {
+      items: Array.from(this.items.values()),
+      tiers: this.tiers
+    };
     this.socket.emit('update-state', this.roomId, currentState);
+  }
+
+  updateTierLabel(tierId: string, newLabel: string) {
+    const tier = this.tiers.find(t => t.id === tierId);
+    if (tier && tier.label !== newLabel) {
+      tier.label = newLabel;
+      this.broadcastState();
+    }
   }
 
   getItemsForTier(tierId: TierId): ImageItem[] {
