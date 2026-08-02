@@ -42,6 +42,10 @@ const io = new Server(server, {
 
 const roomStates = new Map();
 
+// Serve the uploads folder directly since files uploaded at runtime 
+// aren't included in SvelteKit's pre-built client assets.
+app.use('/uploads', express.static(uploadsDir));
+
 io.on('connection', (socket) => {
   console.log('Client connected:', socket.id);
 
