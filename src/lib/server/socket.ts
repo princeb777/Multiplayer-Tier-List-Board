@@ -1,11 +1,31 @@
 import { Server } from 'socket.io';
 import type { Server as HTTPServer } from 'http';
+import { readdirSync, unlinkSync } from 'fs';
+import { join } from 'path';
 
 // We store the current state of each room here.
 // In production, this might be Redis or a database.
 const roomStates = new Map<string, any[]>();
 
 export function setupSocket(server: HTTPServer) {
+  // Clean up old uploads on server start
+  try {
+    const uploadsDir = join(process.cwd(), 'static', 'uploads');
+    const files = readdirSync(uploadsDir);
+    let deletedCount = 0;
+    for (const file of files) {
+      if (file !== '.gitkeep') {
+        unlinkSync(join(uploadsDir, file));
+        deletedCount++;
+      }
+    }
+    if (deletedCount > 0) {
+      console.log(`Cleaned up ${deletedCount} leftover file(s) in static/uploads/`);
+    }
+  } catch (err) {
+    console.error('Error cleaning up uploads directory:', err);
+  }
+
   const io = new Server(server, {
     cors: {
       origin: '*',
