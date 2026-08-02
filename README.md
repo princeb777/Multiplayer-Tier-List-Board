@@ -2,6 +2,18 @@
 
 A highly responsive, real-time collaborative tier list maker built with **SvelteKit 5** and **Socket.io**. Create a room, share the link, and collaboratively rank images with your friends in real time!
 
+**🔗 Live Demo:** [https://tier-list-board.onrender.com](https://tier-list-board.onrender.com)
+
+## 🎮 How to Use & Controls
+
+1. **Create a Room**: Click the "Create New Room" button on the home page. You will be redirected to a unique room URL (e.g., `/e4b8a2c1`).
+2. **Invite Friends**: Copy the URL from your browser's address bar and send it to your friends. Anyone who visits the link will join your room.
+3. **Upload Images**: Click the **+** button on the right side of the screen to upload images from your device into the shared Image Pool.
+4. **Rank Images**: Click and drag any image from the pool and drop it into a tier row (S, A, B, etc.). You can also drag images between tiers to reorder them.
+5. **Quick Return (Right-Click)**: To quickly remove an image from the board, simply **right-click** it. It will instantly fly back to the Image Pool.
+6. **Delete Images**: Hover over an image while it is inside the Image Pool, and click the red **X** in the top-right corner to permanently delete it.
+7. **Reset Board**: Click the **Reset Board** button at the bottom left to send all images currently on the board back into the Image Pool at once.
+
 ## 🚀 Features
 
 - **Real-Time Multiplayer**: Instantly see your friends drag, drop, upload, and delete images. Everything stays perfectly in sync across the network.
